@@ -84,7 +84,7 @@ CREATE TABLE users (
     user_service = UserService(repository, email_service)
     
     try:
-        user_service.create_user("john", "john@example.com", "password")
+        user_service.create_user("john", "johne@xample.com", "password")
     except ValueError as e:
         print(f"Validation error: {e}")
     except RuntimeError as e:
