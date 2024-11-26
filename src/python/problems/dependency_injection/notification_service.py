@@ -1,4 +1,7 @@
-#
+import smtplib
+from email.mime.text import MIMEText
+import requests
+
 
 
 class User:
@@ -10,10 +13,6 @@ class User:
 
 class SMSNotifier:
     def send_message(self, phone_number, message):
-        # Directly implementing SMS-specific logic
-        print(f"Sending SMS to {phone_number}: {message}")
-        # Simulating SMS sending
-        import requests
         response = requests.post('https://sms-gateway.com/send', json={
             'phone': phone_number,
             'message': message,
@@ -21,12 +20,9 @@ class SMSNotifier:
         })
         return response.status_code == 200
 
+
 class EmailNotifier:
     def send_message(self, email, message):
-        # Directly implementing email-specific logic
-        print(f"Sending Email to {email}: {message}")
-        import smtplib
-        from email.mime.text import MIMEText
         
         # Hard-coded SMTP configuration
         smtp_server = "smtp.gmail.com"

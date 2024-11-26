@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict
 from abc import ABC, abstractmethod
+import smtplib
+from email.mime.text import MIMEText
+import requests
 
 
 @dataclass
@@ -31,10 +34,6 @@ class EmailNotifier(Notifier):
         Send notification via email
         """
         try:
-            import smtplib
-            from email.mime.text import MIMEText
-            
-            # Use configuration from environment or secure config
             smtp_config = {
                 'host': 'smtp.gmail.com',
                 'port': 587,
@@ -59,23 +58,22 @@ class EmailNotifier(Notifier):
 
 
 class SMSNotifier(Notifier):
+    def __init__(self):
+        super().__init__()
+        self.sms_config = {
+            'api_url': 'https://sms-gateway.com/send',
+            'api_key': 'your-sms-api-key'
+        }    
+
     def send_message(self, address: str, message: str) -> bool:
         """
         Send notification using an SMS service
         """
         try:
-            import requests
-            
-            # Use configuration from environment or secure config
-            sms_config = {
-                'api_url': 'https://sms-gateway.com/send',
-                'api_key': 'your-sms-api-key'
-            }
-            
-            response = requests.post(sms_config['api_url'], json={
+            response = requests.post(self.sms_config['api_url'], json={
                 'phone': address,
                 'message': message,
-                'api_key': sms_config['api_key']
+                'api_key': self.sms_config['api_key']
             })
             
             return response.status_code == 200
@@ -89,8 +87,6 @@ class SMSNotifier(Notifier):
 class UserNotificationService:
     def __init__(self, notification_services: Dict[str, Notifier]):
         """
-        Dependency Injection of notification services
-        
         :param notification_services: A dictionary of notification methods
         """
         self._notification_services = notification_services
@@ -113,3 +109,25 @@ class UserNotificationService:
             print(f"Notification failed: {e}")
             return False
         
+
+
+def demonstrate_notification_system():
+    # Create notification services
+    notification_services = {
+        'email': EmailNotifier(),
+        'sms': SMSNotifier()
+    }
+    
+    # Initialize notification manager
+    notification_manager = UserNotificationService(notification_services)
+    
+    # Create a user
+    user = User(
+        id='123', 
+        name='John Doe', 
+        contact='john.doe@example.com', 
+        notification_method='email'
+    )
+    
+    # Send notification
+    notification_manager.notify_user(user, "Hello, this is a test notification!")
